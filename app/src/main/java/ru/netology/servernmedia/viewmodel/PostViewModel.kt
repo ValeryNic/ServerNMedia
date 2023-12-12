@@ -70,8 +70,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = edited.value?.copy(content = text)
     }
 
-    fun likeById(post: Long) {
-        thread { repository.likeById(post.id) }
+    fun likeById(id: Long) {
+        thread { repository.likeById(id) }
     }
 
     fun removeById(id: Long) {
