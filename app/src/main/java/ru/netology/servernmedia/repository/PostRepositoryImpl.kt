@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.servernmedia.db.AppDb.Companion.getInstance
 import ru.netology.servernmedia.dto.Post
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 
 class PostRepositoryImpl: PostRepository {
@@ -37,20 +38,21 @@ class PostRepositoryImpl: PostRepository {
             }
     }
 
-    override fun likeById(id: Long) {
-        val posts: List<Post> = getAll()
-        val post: Post? =posts.find{it.id==id}
-        if(post?.likedByMe==true) {
-            val request: Request = Request.Builder()
-                .delete()
-                .url("${BASE_URL}/api/slow/posts/$post.id/likes")
-                .build()
+    override fun likeById(post: Post) {
+        val request: Request =  if(post?.likedByMe==true) {
+            Request.Builder()
+            .delete()
+            .url("${BASE_URL}/api/slow/posts/$post.id/likes")
+            .build()
         } else {
-            val request: Request = Request.Builder()
-                .post(gson.toJson(post).toRequestBody(jsonType))
-                .url("${BASE_URL}/api/slow/posts/$post.id/likes")
-                .build()
+           Request.Builder()
+            .post(gson.toJson(post).toRequestBody(jsonType))
+            .url("${BASE_URL}/api/slow/posts/$post.id/likes")
+            .build()
         }
+        return client.newCall(request)
+            .execute()
+            .let{it  ?: throw RuntimeException("body is null")}
     }
 
     override fun save(post: Post) {
