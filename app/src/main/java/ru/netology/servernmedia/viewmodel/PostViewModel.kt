@@ -69,12 +69,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
         edited.value = edited.value?.copy(content = text)
     }
-
+    //вариант
+    //fun likeById(id: Long) {
+    //        val post = _data.value?.posts?.find { id == it.id } ?: return
+    //        thread {
     fun likeById(post: Post) {
         thread {
-            val posts = _data.value?.posts?.map {
+            val posts = _data.value?.posts?.map { // Формируем новый список постов
                 if (it.id != post.id) it else repository.likeById(post)
-            }
+            } ?: emptyList()
+            _data.postValue(_data.value?.copy(posts = posts)) // Обновляем список постов в ленте
         }
     }
 
