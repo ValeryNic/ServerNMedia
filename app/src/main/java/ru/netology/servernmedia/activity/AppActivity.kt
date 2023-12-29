@@ -18,7 +18,9 @@ import android.os.Looper
 import android.os.Message
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.createBitmap
 import androidx.navigation.findNavController
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
@@ -37,12 +39,12 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         super.onCreate(savedInstanceState)
         val binding = ActivityAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val handler = Handler(Looper.getMainLooper())
-        worker.callback = {
-            handler.post {
-                binding.image.setImageBitmap(it)
-            }
-        }
+//        val handler = Handler(Looper.getMainLooper())
+//        worker.callback = {
+//            handler.post {
+//                binding.image.setImageBitmap(it)
+//            }
+//        }
 
         binding.load.setOnClickListener {
             if (index == urls.size) {
@@ -50,12 +52,13 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             }
 
             val url = "http://10.0.2.2:9999/avatars/${urls[index++]}"
-//            Glide.with(binding.image)
-//                .load(url)
-//                .placeholder(R.drawable.ic_loading_100dp)
-//                .error(R.drawable.ic_error_100dp)
-//                .timeout(10_000)
-//                .into(binding.image)
+            Glide.with(binding.image)
+                .load(url)
+                .placeholder(R.drawable.ic_loading_100dp)
+                .apply(RequestOptions().circleCrop())
+                .error(R.drawable.ic_error_100dp)
+                .timeout(10_000)
+                .into(binding.image)
 
 //            Picasso.get()
 //                .load(url)
