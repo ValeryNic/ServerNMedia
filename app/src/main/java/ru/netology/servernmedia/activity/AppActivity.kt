@@ -31,9 +31,9 @@ import ru.netology.servernmedia.activity.NewPostFragment.Companion.textArg
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
     private val urls = listOf("netology.jpg", "sber.jpg", "tcs.jpg", "404.png")
     private var index = 0
-    private val worker = WorkerThread().apply {
-        start()
-    }
+//    private val worker = WorkerThread().apply {
+//        start()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,35 +67,35 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
     }
 }
-class WorkerThread: Thread(){
-    private lateinit var handler: Handler
-    var callback:(Bitmap) -> Unit = {}
-    private val okHttpClient=OkHttpClient.Builder()
-        .connectTimeout(30,TimeUnit.SECONDS)
-        .build()
-    fun download (url:String){
-        val message = handler.obtainMessage()
-        message.obj = url
-        handler.sendMessage(message)
-    }
-    override fun run(){
-        Looper.prepare()
-        handler=Handler(Looper.myLooper()!!){message:Message ->
-            val request = Request.Builder()
-                .url(message.obj as String)
-                .build()
-
-            val result = okHttpClient.newCall(request)
-                .execute()
-            println(result.body?.string()?.length)
-            callback(BitmapFactory.decodeStream(result.body?.byteStream()))
-
-            true
-        }
-        Looper.loop()
-    }
-
-}
+//class WorkerThread: Thread(){
+//    private lateinit var handler: Handler
+//    var callback:(Bitmap) -> Unit = {}
+//    private val okHttpClient=OkHttpClient.Builder()
+//        .connectTimeout(30,TimeUnit.SECONDS)
+//        .build()
+//    fun download (url:String){
+//        val message = handler.obtainMessage()
+//        message.obj = url
+//        handler.sendMessage(message)
+//    }
+//    override fun run(){
+//        Looper.prepare()
+//        handler=Handler(Looper.myLooper()!!){message:Message ->
+//            val request = Request.Builder()
+//                .url(message.obj as String)
+//                .build()
+//
+//            val result = okHttpClient.newCall(request)
+//                .execute()
+//            println(result.body?.string()?.length)
+//            callback(BitmapFactory.decodeStream(result.body?.byteStream()))
+//
+//            true
+//        }
+//        Looper.loop()
+//    }
+//
+//}
 //fun myDouble(){//остатки прошлой программы
 //        requestNotificationsPermission()
 //
