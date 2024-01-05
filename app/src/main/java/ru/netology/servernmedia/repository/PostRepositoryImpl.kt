@@ -1,5 +1,6 @@
 package ru.netology.servernmedia.repository
 
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
@@ -30,8 +31,16 @@ class PostRepositoryImpl: PostRepository {
         request: Request,
         typeRepository: Type,
         callback: PostRepository.repositoryCallback<T>) {
-        client.newCall(request)
-            .enqueue(object : Callback {
+//        Glide.with(client)
+//            .load(url)
+//            .placeholder(R.drawable.ic_loading_100dp)
+//            .apply(RequestOptions().circleCrop())
+//            .error(R.drawable.ic_error_100dp)
+//            .timeout(10_000)
+//            .into(binding.image)
+
+                client.newCall(request)
+            .enqueue(object : Callback {//асинхронный вызов
                 override fun onResponse(call: Call, response: Response) {
                     try {
                         val result = response.body?.string() ?: throw RuntimeException("body is null")
@@ -44,6 +53,7 @@ class PostRepositoryImpl: PostRepository {
                     callback.onError(e)
                 }
             })
+
     }
 
     override fun getAll(): List<Post> {//создать запрос
@@ -60,30 +70,11 @@ class PostRepositoryImpl: PostRepository {
     }
 
     override fun getAllAsinc(callback: PostRepository.repositoryCallback<List<Post>>) {
+
         val request: Request = Request.Builder()
             .url("${BASE_URL}/api/slow/posts")
             .build()
         enqueueRepository(request, typeToken.type, callback)
-
-//        client.newCall(request)
-//            .enqueue(object :Callback {
-//                override fun onResponse(call: Call, response: Response) {
-//                    println("111 from ${Thread.currentThread().name}")
-//                    try {
-//                        val body = response.body?.string() ?: throw RuntimeException("body is null")
-//                        callback.onSuccess(gson.fromJson(body, typeToken.type))
-//                    } catch (e:Exception){//приём ошибки ОТ сервера
-//                        callback.onError(e)
-//                    }
-//                }
-//
-//                override fun onFailure(call: Call, e: IOException) {
-//                    callback.onError(e)//приём ошибки обращения К серверу с запросом
-//                }
-//            }
-//
-//            )
-        println("222 from ${Thread.currentThread().name}")
     }
     override fun likeById(post: Post):Post {
         val request: Request =  if(post.likedByMe) {

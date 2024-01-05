@@ -15,10 +15,10 @@ interface PostDao {
     fun insert(post: PostEntity)
 
     @Insert
-    fun insert(posts: List<PostEntity>)//метод добавления
+    fun insert(posts: List<PostEntity>)//метод добавления таблицы целиком
 
     @Query("UPDATE PostEntity SET content = :text WHERE id = :id")
-    fun updateContentById(id: Long, text: String)//изменить
+    fun updateContentById(id: Long, text: String)//изменить контент поста
 
     fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else updateContentById(post.id, post.content)
