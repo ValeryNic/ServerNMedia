@@ -23,6 +23,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures.viewBinding = true
+    buildFeatures.buildConfig = true
 
     buildTypes {
         release {
@@ -32,6 +33,7 @@ android {
                 "proguard-rules.pro"
             )
             manifestPlaceholders["usesCleartextTraffic"] = false
+            buildConfigField ("String", "BASE_URL", "https://netomedia.ru")
         }
         debug {
             isMinifyEnabled = false
@@ -40,6 +42,7 @@ android {
                 "proguard-rules.pro"
             )
             manifestPlaceholders["usesCleartextTraffic"] = true
+            buildConfigField ("String", "BA_URL", "\"http://10.0.2.2.:9999\"")
         }
     }
     compileOptions {
@@ -52,11 +55,14 @@ android {
 }
 
 dependencies {
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
-    implementation("com.google.android.gms:play-services-basement:18.2.0")
-    implementation("com.google.android.gms:play-services-base:18.2.0")
+    implementation("com.google.android.gms:play-services-basement:18.3.0")
+    implementation("com.google.android.gms:play-services-base:18.3.0")
     implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
@@ -64,9 +70,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     implementation ("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     val coreKtxVersion = "1.12.0"
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.activity:activity-ktx:1.8.2")

@@ -5,18 +5,26 @@ import okhttp3.Callback
 import ru.netology.servernmedia.dto.Post
 
 interface PostRepository {
-    fun getAll(): List<Post>
-    fun getAllAsinc(callback: repositoryCallback<List <Post>>)
-    fun likeById(post: Post):Post
-    fun likeByIdAsinc(post:Post, callback: repositoryCallback<Post>)
-    fun save(post: Post)
-    fun saveAsinc(post: Post,callback: repositoryCallback<Post>)
-    fun removeById(id: Long)
-    fun removeByIdAsinc(id: Long, callback: repositoryCallback<Post>)
-    interface repositoryCallback<T>{
-        fun onSuccess(result: T)
-        fun onError(e:Exception)
+    fun getAllAsinc(callback: GetAllCallback)
+    fun saveAsinc(post: Post, callback: SaveCallback)
+
+    fun likeAsinc(id: Long, callback: LikeCallback)
+
+    fun removeAsinc(id: Long, callback: RemoveCallback)
+    interface GetAllCallback{
+        fun onSuccess(value:List<Post>){}
+        fun onError(e:Exception){}
     }
-
-
+    interface SaveCallback{
+        fun onSuccess(value:Unit){}
+        fun onError(e:Exception){}
+    }
+    interface LikeCallback{
+        fun onSuccess(value:Post){}
+        fun onError(e:Exception){}
+    }
+    interface RemoveCallback{
+        fun onSuccess(value:Unit){}
+        fun onError(e:Exception){}
+    }
 }

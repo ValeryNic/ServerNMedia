@@ -35,33 +35,34 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadPosts() {
-        val old = _data.value?.posts.orEmpty()
-        // Начинаем загрузку
-        _data.postValue(FeedModel(loading = true))// _data.setValue нельзя, т.к.эта ф-я не выносит данные в осн.поток
-        repository.getAllAsinc(object: PostRepository.repositoryCallback<List<Post>>{
+//        val old = _data.value?.posts.orEmpty()
+        _data.value=FeedModel(loading = true)
+        repository.getAllAsinc(object: PostRepository.GetAllCallback {
             override fun onSuccess(result: List<Post>) {
-                _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
+                //_data.value=... -можно, т.к.retrofit через looper передаёт данные на главный поток
+                _data.value=FeedModel(posts = result, empty = result.isEmpty())
             }
             override fun onError(e: Exception) {
                 _data.postValue(FeedModel(error = true))
-                _data.postValue(_data.value?.copy(posts = old))
+//                _data.postValue(_data.value?.copy(posts = old))
             }
         })
 
     }
 
     fun save() {
-        val old = _data.value?.posts.orEmpty()
+//        val old = _data.value?.posts.orEmpty()
         edited.value?.let {
-           repository.saveAsinc(it, object :PostRepository.repositoryCallback<Post>{
-               override fun onSuccess(result: Post) {
-                   _postCreated.postValue(Unit)
-                   _data.postValue(
-                       _data.value?.copy(posts = _data.value?.posts.orEmpty()))
+           repository.saveAsinc(it, object :PostRepository.SaveCallback{
+               override fun onSuccess(result: Unit) {
+                   _postCreated.value = Unit
+//                   _postCreated.postValue(Unit)
+//                   _data.postValue(
+//                       _data.value?.copy(posts = _data.value?.posts.orEmpty()))
                }
                override fun onError(e: Exception) {
                    _data.postValue(FeedModel(error = true))
-                   _data.postValue(_data.value?.copy(posts = old))
+//                   _data.postValue(_data.value?.copy(posts = old))
                }
            })
         }
@@ -84,7 +85,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     //        val post = _data.value?.posts?.find { id == it.id } ?: return
     //        thread {
     fun likeById(post: Post) {
-        repository.likeByIdAsinc(post, object :PostRepository.repositoryCallback<Post> {
+        repository.likeAsinc(post.id, object :PostRepository.LikeCallback {
             override fun onSuccess(result: Post) {
                 _postCreated.postValue(Unit)
             }
@@ -102,18 +103,19 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
   // }
 
     fun removeById(id: Long){
-    repository.removeByIdAsinc(id, object : PostRepository.repositoryCallback<Post> {
-        val old = _data.value?.posts.orEmpty()
-        override fun onSuccess(result: Post) {
+    repository.removeAsinc(id, object : PostRepository.RemoveCallback {
+//        val old = _data.value?.posts.orEmpty()
+        override fun onSuccess(result: Unit) {
             _data.postValue(
                 _data.value?.copy(posts = _data.value?.posts.orEmpty()
                     .filter { it.id != id }
                 )
             )
         }
-            override fun onError(e: Exception) {
+
+        override fun onError(e: Exception) {
                 _data.postValue(FeedModel(error = true))
-                _data.postValue(_data.value?.copy(posts = old))
+ //               _data.postValue(_data.value?.copy(posts = old))
             }
         })
     }

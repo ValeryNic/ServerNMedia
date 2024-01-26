@@ -10,139 +10,95 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import ru.netology.servernmedia.api.PostsApi
 import ru.netology.servernmedia.dto.Post
+import ru.netology.servernmedia.repository.PostRepository
 import java.io.IOException
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
+import ru.netology.servernmedia.api.PostsApiService
 
 
 class PostRepositoryImpl: PostRepository {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)//задержка для отработки сервера
-        .build()
-    private val gson = Gson()
-    private val typeToken = object : TypeToken<List<Post>>() {}//костыль для получения списка постов из gson
 
-    companion object {
-        private const val BASE_URL = "http://10.0.2.2:9999"
-        private val jsonType = "application/json".toMediaType()//тип данных для запроса от сервера
-    }
-    private fun <T> enqueueRepository(
-        request: Request,
-        typeRepository: Type,
-        callback: PostRepository.repositoryCallback<T>) {
-//        Glide.with(client)
-//            .load(url)
-//            .placeholder(R.drawable.ic_loading_100dp)
-//            .apply(RequestOptions().circleCrop())
-//            .error(R.drawable.ic_error_100dp)
-//            .timeout(10_000)
-//            .into(binding.image)
-
-                client.newCall(request)
-            .enqueue(object : Callback {//асинхронный вызов
-                override fun onResponse(call: Call, response: Response) {
-                    try {
-                        val result = response.body?.string() ?: throw RuntimeException("body is null")
-                        callback.onSuccess(gson.fromJson(result, typeRepository))
-                    } catch (e: Exception) {
-                        callback.onError(e)
-                    }
+    override fun getAllAsinc(callback: PostRepository.GetAllCallback) {
+        PostsApi.retrofitService.getAll().enqueue(object : retrofit2.Callback<List<Post>> {
+            override fun onResponse(
+                call: retrofit2.Call<List<Post>>,
+                response: retrofit2.Response<List<Post>>
+            ) {
+                if (!response.isSuccessful) {
+                    callback.onError(RuntimeException("error cod: ${response.code()} with ${response.message()}"))
+                    return
                 }
-                override fun onFailure(call: Call, e: IOException) {
-                    callback.onError(e)
-                }
-            })
 
-    }
-
-    override fun getAll(): List<Post> {//создать запрос
-        val request: Request = Request.Builder()
-            .url("${BASE_URL}/api/slow/posts")
-            .build()
-
-        return client.newCall(request)//запустить запрос
-            .execute()//синхронный вызов - ждём, пока не получим ответ с сервера
-            .let { it.body?.string() ?: throw RuntimeException("body is null") }//получаем строку либо выбрасываем исключение
-            .let {
-                gson.fromJson(it, typeToken.type)//сохраняем список постов в gson
+                callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
             }
+
+            override fun onFailure(call: retrofit2.Call<List<Post>>, t: Throwable) {
+               callback.onError(Exception("${t} -  No address associated with hostname"))
+            }
+        })
     }
 
-    override fun getAllAsinc(callback: PostRepository.repositoryCallback<List<Post>>) {
+    override fun saveAsinc(post: Post, callback: PostRepository.SaveCallback) {
+        PostsApi.retrofitService.save(post).enqueue(object :retrofit2.Callback<Post> {
+            override fun onResponse(
+                call: retrofit2.Call<Post>,
+                response: retrofit2.Response<Post>
+            ) {
+                if (!response.isSuccessful) {
+                    callback.onError(RuntimeException("error cod: ${response.code()} with ${response.message()}"))
+                    return
+                }
+                callback.onSuccess(Unit)
+            }
+            override fun onFailure(call: retrofit2.Call<Post>, t: Throwable) {
+                callback.onError(Exception("${t} - No address associated with hostname"))
+            }
+        })
 
-        val request: Request = Request.Builder()
-            .url("${BASE_URL}/api/slow/posts")
-            .build()
-        enqueueRepository(request, typeToken.type, callback)
     }
-    override fun likeById(post: Post):Post {
-        val request: Request =  if(post.likedByMe) {
-            Request.Builder()
-            .delete()
-            .url("${BASE_URL}/api/slow/posts/${post.id}/likes")
-            .build()
-        } else {
-           Request.Builder()
-            .post(gson.toJson(post).toRequestBody(jsonType))
-            .url("${BASE_URL}/api/slow/posts/${post.id}/likes")
-            .build()
-        }
-        return client.newCall(request)
-            .execute()
-            .let{it.body?.string()  ?: throw RuntimeException("body is null")}
-            .let{gson.fromJson(it, Post::class.java)}
-    }
+    override fun removeAsinc(id: Long, callback: PostRepository.RemoveCallback) {
+        PostsApi.retrofitService.removeById(id).enqueue(object :retrofit2.Callback<Unit>{
+            override fun onResponse(
+                call: retrofit2.Call<Unit>,
+                response: retrofit2.Response<Unit>
+            ) {
+                if (!response.isSuccessful) {
+                    callback.onError(RuntimeException("error cod: ${response.code()} with ${response.message()}"))
+                    return
+                }
 
-    override fun likeByIdAsinc(post: Post,callback: PostRepository.repositoryCallback<Post>){
-        val request: Request =  if(post.likedByMe) {
-            Request.Builder()
-                .delete()
-                .url("${BASE_URL}/api/slow/posts/${post.id}/likes")
-                .build()
-        } else {
-            Request.Builder()
-                .post(gson.toJson(post).toRequestBody(jsonType))
-                .url("${BASE_URL}/api/slow/posts/${post.id}/likes")
-                .build()
-        }
-        enqueueRepository(request, Post::class.java, callback)
-    }
-    override fun save(post: Post) {
-        val request: Request = Request.Builder()
-            .post(gson.toJson(post).toRequestBody(jsonType))
-            .url("${BASE_URL}/api/slow/posts")
-            .build()
+                callback.onSuccess(Unit)
+            }
 
-        client.newCall(request)
-            .execute()
-            .close()
+            override fun onFailure(call: retrofit2.Call<Unit>, t: Throwable) {
+                callback.onError(Exception("${t} - No address associated with hostname"))
+            }
+        })
     }
 
-    override fun saveAsinc(post: Post, callback: PostRepository.repositoryCallback<Post>) {
-        val request: Request = Request.Builder()
-            .post(gson.toJson(post).toRequestBody(jsonType))
-            .url("${BASE_URL}/api/slow/posts")
-            .build()
-        enqueueRepository(request,Post::class.java, callback)
+
+    override fun likeAsinc(id: Long, callback: PostRepository.LikeCallback) {
+        PostsApi.retrofitService.likeById(id).enqueue(object :retrofit2.Callback<Post>{
+            override fun onResponse(
+                call: retrofit2.Call<Post>,
+                response: retrofit2.Response<Post>
+            ) {
+                if (!response.isSuccessful) {
+                    callback.onError(RuntimeException("error cod: ${response.code()} with ${response.message()}"))
+                    return
+                }
+
+                callback.onSuccess(response.body() ?: throw RuntimeException("body is null"))
+            }
+
+            override fun onFailure(call: retrofit2.Call<Post>, t: Throwable) {
+                callback.onError(Exception("${t} - No address associated with hostname"))
+            }
+        })
+
     }
 
-    override fun removeById(id: Long) {
-        val request: Request = Request.Builder()
-            .delete()
-            .url("${BASE_URL}/api/slow/posts/$id")
-            .build()
-
-        client.newCall(request)
-            .execute()
-            .close()
-    }
-
-    override fun removeByIdAsinc(id: Long, callback: PostRepository.repositoryCallback<Post>) {
-        val request: Request = Request.Builder()
-            .delete()
-            .url("${BASE_URL}/api/slow/posts/$id")
-            .build()
-        enqueueRepository(request, Post::class.java, callback)
-    }
 }

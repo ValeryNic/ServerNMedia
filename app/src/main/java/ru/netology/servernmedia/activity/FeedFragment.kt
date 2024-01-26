@@ -29,7 +29,7 @@ class FeedFragment : Fragment() {
 
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
-                viewModel.edit(post)
+                viewModel.save()
             }
 
             override fun onLike(post: Post) {
