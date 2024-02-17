@@ -34,19 +34,19 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
 
         get() = _postCreated
-
+    var comments: List<Comment>? = null
     init {
         loadPosts()
     }
 
     fun loadPosts() {
                 val postsWithComments:List<PostsWithComments> = getPosts()
-                    .map{
-                        PostsWithComments(it.id, authorName = getAuthor(it.id,object: PostRepository.GetAuthorByIdCallback){object: body.name}
-                        , authorAvatar = getAuthor(it.id,object: PostRepository.GetAuthorByIdCallback){object: body.avatar}, it.content, it.published,
+                    .map {
+                        PostsWithComments(it.id, authorName = getAuthor(it.id,object: PostRepository.GetAuthorByIdCallback).name
+                        , authorAvatar = getAuthor(it.id,object: PostRepository.GetAuthorByIdCallback).avatar, it.content, it.published,
                             it.likedByMe, it.likes, it.attachment,comments = getComments(it.id, object: PostRepository.GetAllCommentsCallback))
                 }
-            }
+    }
     fun getPosts(){
 //        val old = _data.value?.posts.orEmpty()
         _data.value=FeedModel(loading = true)
@@ -64,7 +64,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         repository}
 
     }
-    fun getAuthor(id: Long, param: PostRepository.GetAuthorByIdCallback) {
+    fun getAuthor(id: Long, param: PostRepository.GetAuthorByIdCallback): Author {
         _data.value=FeedModel(loading = true)
         suspend { repository.getAuthorByIdAsinc(id, object: PostRepository.GetAuthorByIdCallback
         {
