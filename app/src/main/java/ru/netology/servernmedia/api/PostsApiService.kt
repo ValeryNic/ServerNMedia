@@ -8,6 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import ru.netology.servernmedia.BuildConfig
+import ru.netology.servernmedia.dto.Author
+import ru.netology.servernmedia.dto.Comment
 import ru.netology.servernmedia.dto.Post
 
 private val BASE_URL =  "${BuildConfig.BA_URL}/api/slow/"
@@ -31,22 +33,39 @@ private val retrofit = Retrofit.Builder()
 
 interface PostsApiService {
     @GET("posts")
-    fun getAll(): Call<List<Post>>
-
+    suspend fun getAllPosts(): Call<List<Post>>
     @GET("posts/{id}")
-    fun getById(@Path("id") id: Long): Call<Post>
-
+    suspend fun getPostById(@Path("id") id: Long): Call<Post>
     @POST("posts")
-    fun save(@Body post: Post): Call<Post>//@Body - говорит о том, что параметр post надо
-//отправить в теле запроса на сервер
+    suspend fun savePost(@Body post: Post): Call<Post>//@Body - говорит о том, что параметр post надо
+    //отправить в теле запроса на сервер
     @DELETE("posts/{id}")
-    fun removeById(@Path("id") id: Long): Call<Unit>//вид ответа должен быть, его надо
-//сформировать -  Call<Unit>, чтобы retrofit закрыл обработку запроса
+    suspend fun removePostById(@Path("id") id: Long): Call<Unit>//вид ответа должен быть, его надо
+    //сформировать -  Call<Unit>, чтобы retrofit закрыл обработку запроса
     @POST("posts/{id}/likes")
-    fun likeById(@Path("id") id: Long): Call<Post>
+    fun likePostById(@Path("id") id: Long): Call<Post>
 
     @DELETE("posts/{id}/likes")
-    fun dislikeById(@Path("id") id: Long): Call<Post>
+    suspend fun unlikePostById(@Path("id") id: Long): Call<Post>
+    @GET("authors/{id}")
+    suspend fun getAuthorById(@Path("id") id: Long): Call<Author>
+    @POST("authors")
+    suspend fun saveAuthor(@Body author: Author): Call<Author>
+    @GET("posts/{postId}/comments")
+    suspend fun getAllCommentsByPostId(@Path("id") id: Long):Call<List<Comment>>
+    @POST("posts/{postId}/comments")
+suspend fun saveComment(@Body comment: Comment): Call<Comment>
+    @DELETE("posts/{postId}/comments/{id}")
+    suspend fun deleteCommentById(@Path("id") id: Long):Call<Unit>
+    @POST("posts/{postId}/comments/{id}/likes")
+    suspend fun likeCommentById(@Path("id") id: Long): Call<Comment>
+    @DELETE("posts/{postId}/comments/{id}/likes")
+    suspend fun unlikeCommentById(@Path("id") id: Long): Call<Comment>
+
+
+
+
+
 }
 
 object PostsApi {
