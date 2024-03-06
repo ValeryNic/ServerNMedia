@@ -1,4 +1,4 @@
-package ru.netology.nmedia.service
+package ru.netology.servernmedia.service
 
 import android.Manifest
 import android.app.Notification
@@ -12,8 +12,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
-import ru.netology.servernmedia.R
 import kotlin.random.Random
+import ru.netology.servernmedia.R
 
 
 class FCMService : FirebaseMessagingService() {
@@ -25,8 +25,8 @@ class FCMService : FirebaseMessagingService() {
     override fun onCreate() {
         super.onCreate()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_remote_name)
-            val descriptionText = getString(R.string.channel_remote_description)
+            val name = getString(R.strings.channel_remote_name)
+            val descriptionText = getString(R.strings.channel_remote_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(channelId, name, importance).apply {
                 description = descriptionText

@@ -12,8 +12,7 @@ import ru.netology.servernmedia.util.AndroidUtils
 import ru.netology.servernmedia.util.StringArg
 import ru.netology.servernmedia.viewmodel.PostViewModel
 
-class
-NewPostFragment : Fragment() {
+class NewPostFragment : Fragment() {
 
     companion object {
         var Bundle.textArg: String? by StringArg
@@ -41,7 +40,6 @@ NewPostFragment : Fragment() {
             AndroidUtils.hideKeyboard(requireView())
         }
         viewModel.postCreated.observe(viewLifecycleOwner) {
-            viewModel.loadPosts()
             findNavController().navigateUp()
         }
         return binding.root

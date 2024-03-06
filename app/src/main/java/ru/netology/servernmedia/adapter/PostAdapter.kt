@@ -6,12 +6,8 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import ru.netology.servernmedia.R
 import ru.netology.servernmedia.databinding.CardPostBinding
-import ru.netology.servernmedia.dto.Author
-import ru.netology.servernmedia.dto.Comment
 import ru.netology.servernmedia.dto.Post
 
 interface OnInteractionListener {
@@ -40,20 +36,12 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post,author: Author,comments:List<Comment>) {
+    fun bind(post: Post) {
         binding.apply {
-            Glide.with(binding.avatar)
-                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
-                .placeholder(R.drawable.ic_loading_100dp)//аватар по умолчанию
-                .apply(RequestOptions().circleCrop())//
-                .error(R.drawable.ic_error_100dp)//
-                .timeout(10_000)//
-                .into(binding.avatar)//
-
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            // в адаптере
+            avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
 
