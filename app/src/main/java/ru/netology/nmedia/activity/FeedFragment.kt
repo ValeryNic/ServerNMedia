@@ -64,8 +64,20 @@ class FeedFragment : Fragment() {
             }
         }
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            var newPost = state.posts.size > adapter.currentList.size && adapter.itemCount > 0
+            //submitList - асинхронный метод
+            adapter.submitList(state.posts){
+                if(newPost){
+                    val count = state.posts.size - adapter.currentList.size
+                    //binding.newList.text = ("new posts = $count").toString()
+                    binding.newList.isVisible = true
+                    newPost = false
+                }
+            }
             binding.emptyText.isVisible = state.empty
+        }
+        viewModel.newerCount.observe(viewLifecycleOwner){
+            println(it)
         }
 
         binding.swiperefresh.setOnRefreshListener {
@@ -74,6 +86,11 @@ class FeedFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        }
+
+        binding.newList.setOnClickListener{
+            binding.list.smoothScrollToPosition(0)
+            binding.newList.isVisible = false
         }
 
         return binding.root

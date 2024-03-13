@@ -45,6 +45,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 
     private fun requestNotificationsPermission() {
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             return
         }
