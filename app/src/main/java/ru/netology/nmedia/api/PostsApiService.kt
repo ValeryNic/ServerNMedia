@@ -1,5 +1,7 @@
 package ru.netology.nmedia.api
 
+import android.provider.MediaStore.Images.Media
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -48,6 +50,9 @@ interface PostsApiService {
 
     @DELETE("posts/{id}/likes")
     suspend fun dislikeById(@Path("id") id: Long): Response<Post>
+    @Multipart
+    @POST("media")
+    suspend fun upload(@Part media: MultipartBody.Part): Response<ru.netology.nmedia.dto.Media>
 }
 
 object PostsApi {
