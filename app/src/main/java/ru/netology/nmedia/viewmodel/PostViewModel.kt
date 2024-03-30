@@ -45,8 +45,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     //switchMap - пересоздание LiveData при каждом изменении в repository
     val newerCount = data.switchMap {
         repository.getNewerCount(it.posts.firstOrNull()?.id?: 0L)
+<<<<<<< HEAD
             .catch { _dataState.postValue(FeedModelState(error = true))}//postValue, т.к.фоновый поток
             .asLiveData(Dispatchers.Default, 100)
+=======
+            .catch { e -> e.printStackTrace() }
+
+            .asLiveData(Dispatchers.Default, 500)
+>>>>>>> new
     }
 
     private val _dataState = MutableLiveData<FeedModelState>()

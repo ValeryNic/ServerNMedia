@@ -17,6 +17,7 @@ data class PostEntity(
     val published: String,
     val likedByMe: Boolean,
     val likes: Int = 0,
+<<<<<<< HEAD
     val newPostsAdded: Boolean,
     @Embedded
     var attachment: AttachmentEmbeddable?,
@@ -26,6 +27,15 @@ data class PostEntity(
     companion object {
         fun fromDto(dto: Post) =
             PostEntity(dto.id, dto.author, dto.authorAvatar, dto.content, dto.published, dto.likedByMe, dto.likes, dto.newPostsAdded,  AttachmentEmbeddable.fromDto(dto.attachment))
+=======
+    val newPostsAdded: Boolean = false,
+) {
+    fun toDto() = Post(id, author, authorAvatar, content, published, likedByMe, likes,false )
+
+    companion object {
+        fun fromDto(dto: Post) =
+            PostEntity(dto.id, dto.author, dto.authorAvatar, dto.content, dto.published, dto.likedByMe, dto.likes, newPostsAdded=true)
+>>>>>>> new
 
     }
 }

@@ -64,19 +64,28 @@ class FeedFragment : Fragment() {
             }
         }
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            var newPost = state.posts.size > adapter.currentList.size && adapter.itemCount > 0
+            val t1 = state.posts.size
+            val t2 = adapter.currentList.size
+            println("$t1")
+            println("$t2")
+            var newPost = t1>t2// && adapter.itemCount > 0
             //submitList - асинхронный метод
-            adapter.submitList(state.posts){
-                if(newPost){
-                    val count = state.posts.size - adapter.currentList.size
-                    //binding.newList.text = ("new posts = $count").toString()
-                    binding.newList.isVisible = true
-                    newPost = false
-                }
+            if(t1 > t2) {
+                val count = state.posts.size - adapter.currentList.size
+                println("new posts = $count")
+                binding.newList.isVisible = true
+                binding.newList.text = "new posts = $count"
+                newPost = false
+
             }
             binding.emptyText.isVisible = state.empty
         }
+
+
+
         viewModel.newerCount.observe(viewLifecycleOwner){
+            binding.newList.text = "new posts = $it"
+            binding.newList.isVisible = true
             println(it)
         }
 
@@ -89,6 +98,10 @@ class FeedFragment : Fragment() {
         }
 
         binding.newList.setOnClickListener{
+            viewModel.data.observe(viewLifecycleOwner) { state ->
+
+                adapter.submitList(state.posts)
+            }
             binding.list.smoothScrollToPosition(0)
             binding.newList.isVisible = false
         }

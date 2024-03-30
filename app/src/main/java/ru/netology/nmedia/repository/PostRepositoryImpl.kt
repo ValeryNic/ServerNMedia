@@ -30,7 +30,7 @@ import java.io.File
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override val data = dao.getAll().map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+        //.flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         try {
@@ -43,25 +43,28 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             dao.insert(body.toEntity())
         } catch (e: IOException) {
             throw NetworkError
+
         } catch (e: Exception) {
             throw UnknownError
         }
     }
 
+
+
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
-                println("in1")
-                kotlinx.coroutines.delay(10_000L)
-                println("in2")
-                val response = PostsApi.service.getNewer(id)
-                if (!response.isSuccessful) {
-                    throw ApiError(response.code(), response.message())
-                }
+            println("in1")
+            kotlinx.coroutines.delay(10_000L)
+            println("in2")
+            val response = PostsApi.service.getNewer(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
 
-                val body = response.body() ?: throw ApiError(response.code(), response.message())
-                dao.insert(body.toEntity())
-                println("in3")
-                emit(body.size)//возвращаем кол-во новых постов
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.toEntity())//записываем в БД список с новыми постами
+            println(body.size)
+            emit(body.size)//функция возвращает кол-во новых постов
 
         }
     }.catch { e -> throw AppError.from(e) }//выделяем здесь, а перехватываем во PostViewModel.newerCount
