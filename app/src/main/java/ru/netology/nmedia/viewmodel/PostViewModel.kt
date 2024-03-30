@@ -38,7 +38,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val newerCount = data.switchMap {
         repository.getNewerCount(it.posts.firstOrNull()?.id?: 0L)
             .catch { e -> e.printStackTrace() }
-            .asLiveData(Dispatchers.Default, 100)
+
+            .asLiveData(Dispatchers.Default, 500)
     }
 
     private val _dataState = MutableLiveData<FeedModelState>()
