@@ -68,14 +68,14 @@ class FeedFragment : Fragment() {
             val t2 = adapter.currentList.size
             println("$t1")
             println("$t2")
-            var newPost = t1>t2// && adapter.itemCount > 0
+            var newPost = t1>t2 && adapter.itemCount > 0
             //submitList - асинхронный метод
-            if(t1 > t2) {
-                val count = state.posts.size - adapter.currentList.size
+            if(newPost) {
+                val count = viewModel.newerCount
                 println("new posts = $count")
                 binding.newList.isVisible = true
                 binding.newList.text = "new posts = $count"
-                newPost = false
+
 
             }
             binding.emptyText.isVisible = state.empty
@@ -83,11 +83,11 @@ class FeedFragment : Fragment() {
 
 
 
-        viewModel.newerCount.observe(viewLifecycleOwner){
-            binding.newList.text = "new posts = $it"
-            binding.newList.isVisible = true
-            println(it)
-        }
+//        viewModel.newerCount.observe(viewLifecycleOwner){
+//            binding.newList.text = "new posts = $it"
+//            binding.newList.isVisible = true
+//            println(it)
+//        }
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()

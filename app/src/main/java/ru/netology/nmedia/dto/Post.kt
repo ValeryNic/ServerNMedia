@@ -10,7 +10,6 @@ data class Post(
     val published: String,
     val likedByMe: Boolean,
     val likes: Int = 0,
-    var newPostsAdded:Boolean,
     var attachment: Attachment? = null,
 )
 

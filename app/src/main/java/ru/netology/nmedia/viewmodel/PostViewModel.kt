@@ -4,17 +4,19 @@ import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
-private val empty = Post(
+private val empty = PostEntity(
     id = 0,
     content = "",
     author = "",
@@ -25,18 +27,19 @@ private val empty = Post(
     newPostsAdded = false
 )
 
+
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     // упрощённый вариант
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+    val data: LiveData<FeedModel> = repository.dataRep.map(::FeedModel)
         .catch { it.printStackTrace() }
         .asLiveData(Dispatchers.Default)
 
     //switchMap - пересоздание LiveData при каждом изменении в repository
-    val newerCount = data.switchMap {
-        repository.getNewerCount(it.posts.firstOrNull()?.id?: 0L)
+    val newerCount = repository.dataRep.map {
+        repository.getNewerCount(it.firstOrNull()?.id?: 0L)
             .catch { e -> e.printStackTrace() }
 
             .asLiveData(Dispatchers.Default, 500)
@@ -46,7 +49,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
-    private val edited = MutableLiveData(empty)
+    private val edited = MutableLiveData(empty.toDto())
+
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
@@ -87,7 +91,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
-        edited.value = empty
+        edited.value = empty.toDto()
 
     }
 
@@ -112,7 +116,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _dataState.value = FeedModelState(error = true)
             }
         }
-        edited.value = empty
+        edited.value = empty.toDto()
     }
 
     fun removeById(id: Long) {
@@ -124,6 +128,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _dataState.value = FeedModelState(error = true)
             }
         }
-        edited.value = empty
+        edited.value = empty.toDto()
+
     }
 }
