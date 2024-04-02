@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -69,12 +70,22 @@ class FeedFragment : Fragment() {
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val t1 = state.size
             val t2 = adapter.currentList.size
+            var count:Int=0
+            if(t2==0) {
+                viewModel.data.observe(viewLifecycleOwner) { state ->
+
+                    adapter.submitList(state.toDto())
+                }
+                binding.list.smoothScrollToPosition(0)
+                binding.newList.isVisible = false
+            }
             println("$t1")
             println("$t2")
             var newPost = t1>t2 && adapter.itemCount > 0
+            //delay(10_000L)
             //submitList - асинхронный метод
             if(newPost) {
-                val count = viewModel.newerCount
+                val count = t1-t2
                 println("new posts = $count")
                 binding.newList.isVisible = true
                 binding.newList.text = "new posts = $count"

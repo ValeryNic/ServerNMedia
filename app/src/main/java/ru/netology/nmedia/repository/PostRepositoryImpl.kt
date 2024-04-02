@@ -3,6 +3,7 @@ package ru.netology.nmedia.repository
 import androidx.lifecycle.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -30,10 +31,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
-
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             println(body)
             dao.insert(body.toEntity())
+            delay(10_000L)
         } catch (e: IOException) {
             throw NetworkError
 
