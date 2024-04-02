@@ -14,7 +14,6 @@ import ru.netology.nmedia.api.*
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
@@ -22,7 +21,7 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
-    override val dataRep = dao.getAllDao().map(List<PostEntity>::toDto)
+    override val dataRep = dao.getAllDao()
         //.flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {

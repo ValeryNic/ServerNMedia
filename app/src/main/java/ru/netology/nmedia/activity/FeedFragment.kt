@@ -15,6 +15,9 @@ import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.toDto
+import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -64,7 +67,7 @@ class FeedFragment : Fragment() {
             }
         }
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            val t1 = state.posts.size
+            val t1 = state.size
             val t2 = adapter.currentList.size
             println("$t1")
             println("$t2")
@@ -78,7 +81,7 @@ class FeedFragment : Fragment() {
 
 
             }
-            binding.emptyText.isVisible = state.empty
+            //binding.emptyText.isVisible = FeedModel.
         }
 
 
@@ -100,7 +103,7 @@ class FeedFragment : Fragment() {
         binding.newList.setOnClickListener{
             viewModel.data.observe(viewLifecycleOwner) { state ->
 
-                adapter.submitList(state.posts)
+                adapter.submitList(state.toDto())
             }
             binding.list.smoothScrollToPosition(0)
             binding.newList.isVisible = false

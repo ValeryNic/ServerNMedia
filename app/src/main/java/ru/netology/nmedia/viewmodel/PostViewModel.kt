@@ -33,7 +33,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
-    val data: LiveData<FeedModel> = repository.dataRep.map(::FeedModel)
+    val data: LiveData<List<PostEntity>> = repository.dataRep
         .catch { it.printStackTrace() }
         .asLiveData(Dispatchers.Default)
 
