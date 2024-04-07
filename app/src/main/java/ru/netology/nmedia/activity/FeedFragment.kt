@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
@@ -15,15 +17,22 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 class FeedFragment : Fragment() {
-
-    private val viewModel: PostViewModel by activityViewModels()
+    private val dependencyContainer = DependencyContainer.getInstance()
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment,
+        factoryProducer = {
+           ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,13 +77,13 @@ class FeedFragment : Fragment() {
             }
         }
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            val t1 = state.size
+            val t1 = state.posts.size
             val t2 = adapter.currentList.size
             var count:Int=0
             if(t2==0) {
                 viewModel.data.observe(viewLifecycleOwner) { state ->
 
-                    adapter.submitList(state.toDto())
+                    adapter.submitList(state.posts.toDto())
                 }
                 binding.list.smoothScrollToPosition(0)
                 binding.newList.isVisible = false
@@ -85,6 +94,8 @@ class FeedFragment : Fragment() {
             //delay(10_000L)
             //submitList - асинхронный метод
             if(newPost) {
+
+
                 val count = t1-t2
                 println("new posts = $count")
                 binding.newList.isVisible = true
@@ -114,7 +125,7 @@ class FeedFragment : Fragment() {
         binding.newList.setOnClickListener{
             viewModel.data.observe(viewLifecycleOwner) { state ->
 
-                adapter.submitList(state.toDto())
+                adapter.submitList(state.posts.toDto())
             }
             binding.list.smoothScrollToPosition(0)
             binding.newList.isVisible = false

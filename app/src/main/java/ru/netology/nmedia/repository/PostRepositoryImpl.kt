@@ -21,13 +21,16 @@ import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
+class PostRepositoryImpl(
+    private val dao: PostDao,
+    private val apiService: PostsApiService
+) : PostRepository {
     override val dataRep = dao.getAllDao()
         //.flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         try {
-            val response = PostsApi.service.getAllApi()
+            val response = apiService.getAllApi()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -50,7 +53,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             println("in1")
             kotlinx.coroutines.delay(10_000L)
             println("in2")
-            val response = PostsApi.service.getNewer(id)
+            val response = apiService.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -62,11 +65,12 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
         }
     }.catch {it.printStackTrace()}//{ e -> throw AppError.from(e) }
+        //flowOn - наблюдатель за всеми операторами, находящимися выше
         .flowOn(Dispatchers.Default)
 
     override suspend fun save(post: Post) {
         try {
-            val response = PostsApi.service.save(post)
+            val response = apiService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -82,7 +86,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun removeById(id: Long) {
         try{
-            val response = PostsApi.service.removeById(id)
+            val response = apiService.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -96,19 +100,19 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun likeById(id: Long) {
         try{
-            var response = PostsApi.service.getById(id)//PostsApi.service.likeById(id)
+            var response = apiService.getById(id)//PostsApi.service.likeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             var post = response.body() ?: throw ApiError(response.code(), response.message())
             if(post.likedByMe){
-                response = PostsApi.service.dislikeById(id)
+                response = apiService.dislikeById(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
                 post = response.body() ?: throw ApiError(response.code(), response.message())
             } else {
-                response = PostsApi.service.likeById(id)
+                response = apiService.likeById(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -121,4 +125,5 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             throw UnknownError
         }
     }
+
 }

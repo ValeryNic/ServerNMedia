@@ -3,10 +3,11 @@ package ru.netology.nmedia.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -28,13 +29,26 @@ private val empty = PostEntity(
 )
 
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
-    // упрощённый вариант
-    private val repository: PostRepository =
-        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
+class PostViewModel(
+    private val repository: PostRepository,
+    private val appAuth: AppAuth
+) : ViewModel() {
 
-    val data: LiveData<List<PostEntity>> = repository.dataRep
-        .catch { it.printStackTrace() }
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val data: LiveData<FeedModel> = appAuth
+        .authStateFlow
+        //.flatMapLatest следит за появленикем трансформации
+        .flatMapLatest {auth ->
+            repository.dataRep.map{
+                posts ->
+                FeedModel(
+                    posts.map { it.copy(ownerByMe = auth.id == it.id) },
+                    posts.isEmpty()
+                )
+            }
+        }
         .asLiveData(Dispatchers.Default)
 
     //switchMap - пересоздание LiveData при каждом изменении в repository
