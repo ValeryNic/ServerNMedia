@@ -3,6 +3,7 @@ package ru.netology.nmedia.activity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -21,21 +22,30 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.viewmodel.AuthViewModel
-import ru.netology.nmedia.viewmodel.ViewModelFactory
+import javax.inject.Inject
 import androidx.lifecycle.repeatOnLifecycle as lifecycleRepeatOnLifecycle
+import ru.netology.nmedia.R
 
+
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
-    private val viewModel: AuthViewModel by viewModels (
-        factoryProducer = {
-        ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
-    })
-    private val dependencyContainer = DependencyContainer.getInstance()
+    private val viewModel: AuthViewModel by viewModels ()
+    @Inject
+    lateinit var appAuth: AppAuth
+
+    @Inject
+    lateinit var firebaseInstallations: FirebaseInstallations
+
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
+
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
     override fun onCreate(savedInstanceState: Bundle?) {
 
 
@@ -55,7 +65,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
             intent.removeExtra(Intent.EXTRA_TEXT)
             findNavController(R.id.nav_host_fragment)
-                .navigate(
+                R.navigate(
                     R.id.action_feedFragment_to_newPostFragment,
                     Bundle().apply {
                         textArg = text
@@ -73,7 +83,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             }
 
         }
-        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+        firebaseInstallations.id.addOnCompleteListener { task ->
             if(!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
@@ -82,7 +92,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             println(token)
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        firebaseMessaging.token.addOnCompleteListener { task ->
             if(!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
@@ -118,15 +128,15 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 var result: Boolean
                 when(menuItem.itemId){
                     R.id.signin -> {
-                        dependencyContainer.appAuth.setAuth(5, "x-token")//есть такой на ДЗ сервере, не забудь в релизе удалить
+                        appAuth.setAuth(5, "x-token")//есть такой на ДЗ сервере, не забудь в релизе удалить
                         result = true
                     }
                     R.id.signup -> {
-                        dependencyContainer.appAuth.setAuth(5, "x-token")//есть такой на ДЗ сервере, не забудь в релизе удалить
+                        appAuth.setAuth(5, "x-token")//есть такой на ДЗ сервере, не забудь в релизе удалить
                         result = true
                     }
                     R.id.signout -> {
-                        dependencyContainer.appAuth.removeAuth()
+                        appAuth.removeAuth()
                         result = true
                     }
                     else -> result = false
@@ -172,7 +182,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
+        with(googleApiAvailability) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with

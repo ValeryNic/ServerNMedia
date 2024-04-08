@@ -2,6 +2,7 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
@@ -13,9 +14,11 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
 private val empty = PostEntity(
     id = 0,
@@ -27,9 +30,9 @@ private val empty = PostEntity(
     published = "",
     newPostsAdded = false
 )
-
-
-class PostViewModel(
+//private  val noPhoto = PhotoModel()
+@HiltViewModel
+class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     private val appAuth: AppAuth
 ) : ViewModel() {

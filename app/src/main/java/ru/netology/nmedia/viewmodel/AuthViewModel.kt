@@ -3,12 +3,13 @@ package ru.netology.nmedia.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
-import ru.netology.nmedia.di.DependencyContainer
+import javax.inject.Inject
+@HiltViewModel
+class AuthViewModel @Inject constructor(
 
-class AuthViewModel(
     private val appAuth: AppAuth,
 ) : ViewModel(){
     val dataAuth: LiveData<AuthState> = appAuth

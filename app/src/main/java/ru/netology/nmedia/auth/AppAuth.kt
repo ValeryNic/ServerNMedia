@@ -14,14 +14,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import ru.netology.nmedia.api.PostsApiService
-import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.dto.PushToken
 import javax.inject.Inject
 import javax.inject.Singleton
 
 //Класс - Singleton, так как создаёт объект
 @Singleton
-class AppAuth (context: Context) {
+class AppAuth @Inject constructor(
+    @ApplicationContext
+    private val context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val idKey = "id"
     private val tokenKey = "token"
@@ -66,12 +67,20 @@ class AppAuth (context: Context) {
         }
         sendPushToken()
     }
-    private fun sendPushToken(token: String? = null){
+    //Для получения объекта apiService в данном классе надо получить ссылку на граф зависимости
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface AppAuthEntryPoint {
+        fun getApiService(): PostsApiService
+    }
+    fun sendPushToken(token: String? = null){
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val pushToken = PushToken(token ?: Firebase.messaging.token.await())
                 println("token=$pushToken")
-                DependencyContainer.getInstance().apiService.save(pushToken)
+                //создать объект entryPoint, из которого хотим получить apiSirvice
+                val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+                entryPoint.getApiService.save(pushToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
