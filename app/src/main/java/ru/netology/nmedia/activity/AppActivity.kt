@@ -3,7 +3,6 @@ package ru.netology.nmedia.activity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -29,11 +28,12 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import javax.inject.Inject
 import androidx.lifecycle.repeatOnLifecycle as lifecycleRepeatOnLifecycle
-import ru.netology.nmedia.R
+import  ru.netology.nmedia.R
 
 
 @AndroidEntryPoint
-class AppActivity : AppCompatActivity(R.layout.activity_app) {
+class AppActivity : AppCompatActivity (R.layout.activity_app,
+    ) {
     private val viewModel: AuthViewModel by viewModels ()
     @Inject
     lateinit var appAuth: AppAuth
@@ -195,7 +195,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 .show()
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
+        firebaseMessaging.token.addOnSuccessListener {
             println(it)
         }
     }

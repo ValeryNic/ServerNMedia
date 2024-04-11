@@ -37,7 +37,7 @@ class AppAuth @Inject constructor(
             _authStateFlow = MutableStateFlow(AuthState())
             with(prefs.edit()) {
                 clear()
-                apply()
+                commit()
             }
         } else {
             _authStateFlow = MutableStateFlow(AuthState(id, token))
@@ -53,17 +53,17 @@ class AppAuth @Inject constructor(
         with(prefs.edit()) {
             putLong(idKey, id)
             putString(tokenKey, token)
-            apply()
+            commit()
         }
         sendPushToken()
     }
 
     @Synchronized
     fun removeAuth() {
-        _authStateFlow.value = AuthState()
+        _authStateFlow.value = AuthState(0, null) //запись в префс нулевых значений авторизации
         with(prefs.edit()) {
             clear()
-            apply()
+            commit()
         }
         sendPushToken()
     }
@@ -73,6 +73,7 @@ class AppAuth @Inject constructor(
     interface AppAuthEntryPoint {
         fun getApiService(): PostsApiService
     }
+    @Synchronized
     fun sendPushToken(token: String? = null){
         CoroutineScope(Dispatchers.Default).launch {
             try {
@@ -80,7 +81,7 @@ class AppAuth @Inject constructor(
                 println("token=$pushToken")
                 //создать объект entryPoint, из которого хотим получить apiSirvice
                 val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
-                entryPoint.getApiService.save(pushToken)
+                entryPoint.getApiService().save(pushToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

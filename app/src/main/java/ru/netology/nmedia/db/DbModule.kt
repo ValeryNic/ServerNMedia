@@ -23,6 +23,8 @@ class DbModule {
     ): AppDb = Room.databaseBuilder(context, AppDb::class.java, "app.db")
         .fallbackToDestructiveMigration()
         .build()
+    @Singleton
+    @Provides
     fun providePostDao(
         appDb: AppDb
     ):PostDao = appDb.postDao()
