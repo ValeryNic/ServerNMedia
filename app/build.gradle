@@ -8,29 +8,18 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 android {
-    namespace "ru.netology.nmedia"
+    namespace = "ru.netology.servernmedia"
     compileSdk = 34
 
     defaultConfig {
-        applicationId "ru.netology.nmedia"
-        minSdkVersion 22
-        targetSdkVersion 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "ru.netology.servernmedia"
+        minSdk = 29
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
-
-
 
     buildFeatures {
         viewBinding true
@@ -48,6 +37,13 @@ android {
             manifestPlaceholders.usesCleartextTraffic = true
             buildConfigField "String", "BASE_URL", '"http://10.0.2.2:9999"'
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptiuos {
+        jvmTarget = '1.8'
     }
 }
 
@@ -86,7 +82,7 @@ dependencies {
     implementation "com.github.dhaval2404:imagepicker:2.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3"
     implementation "com.google.dagger:hilt-android:2.51"
-    kapt "com.google.dagger:hilt-compiler:2.51"
+    ksp "com.google.dagger:hilt-compiler:2.51"
     implementation "androidx.paging:paging-runtime-ktx:3.2.1"
     implementation "androidx.room:room-paging:2.6.1"
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
