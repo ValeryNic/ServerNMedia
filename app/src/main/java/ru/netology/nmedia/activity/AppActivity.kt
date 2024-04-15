@@ -32,7 +32,8 @@ import  ru.netology.nmedia.R
 
 
 @AndroidEntryPoint
-class AppActivity : AppCompatActivity (R.layout.activity_app
+class
+AppActivity : AppCompatActivity (R.layout.activity_app
     ) {
     private val viewModel: AuthViewModel by viewModels ()
     @Inject
